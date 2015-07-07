@@ -1,6 +1,7 @@
 package controllers;
 
 import actors.ChatManager;
+import actors.EchoUser;
 import actors.User;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -27,8 +28,9 @@ public class Application extends Controller {
     public WebSocket<String> socket() {
         return WebSocket.withActor(new F.Function<ActorRef, Props>() {
             public Props apply(ActorRef out) throws Throwable {
-                //return User.props(out);
-                return Props.create(User.class, out, chatManager);
+                return User.props(out,chatManager);
+                //return Props.create(User.class, out, chatManager);
+                //return Props.create(EchoUser.class, out);
             }
         });
     }

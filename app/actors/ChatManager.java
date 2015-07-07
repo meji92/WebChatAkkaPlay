@@ -30,7 +30,6 @@ public class ChatManager extends UntypedActor{
                 chats.put(message, Akka.system().actorOf(Props.create(Chat.class)));
             }
             getSender().tell(chats.get(message), getSelf());
-            System.out.println(chats.toString());
         }
     }
 }

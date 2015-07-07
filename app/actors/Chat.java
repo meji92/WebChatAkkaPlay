@@ -5,11 +5,12 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import play.libs.Json;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.json.simple.JSONObject;
 
 public class Chat extends UntypedActor{
 
@@ -31,8 +32,8 @@ public class Chat extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         //if (message instanceof UserData){
         //    users.put(((UserData) message).getName(), ((UserData) message).getActorRef());
-        if (message instanceof JSONObject){
-            users.put((String) ((JSONObject) message).get("user"), (ActorRef) ((JSONObject) message).get("actorRef"));
+        if (message instanceof ObjectNode){
+            users.put(((ObjectNode) message).get("user").toString(),getSender());
         }else{
             JsonNode json = null;
             try {
@@ -41,8 +42,12 @@ public class Chat extends UntypedActor{
                 e.printStackTrace();
             }
             for (Map.Entry<String, ActorRef> entry : users.entrySet()) {
-                entry.getValue().tell(json.get("message"), getSelf());
-                System.out.println(message + entry.getKey());
+                ObjectNode respuesta = Json.newObject();
+                respuesta.put("name", json.get("user").asText());
+                respuesta.put("color", json.get("color").asText());
+                respuesta.put("message", json.get("message").asText());
+                entry.getValue().tell(respuesta, getSelf());
+
             }
         }
 
