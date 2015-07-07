@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import play.libs.F;
 import play.libs.Json;
 
 
@@ -37,6 +36,7 @@ public class User extends UntypedActor {
     }
 
     public void onReceive(Object message) throws Exception {
+        //Message from the client
         if (message instanceof String) {
             JsonNode json= null;
             try {
@@ -44,29 +44,28 @@ public class User extends UntypedActor {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            //Initial message
+            //Initial message. Send the chat name to ChatManager
             if (!json.has("message")){
                 username = json.get("user").asText();
                 chatManager.tell(json.get("chat").asText(), getSelf());
             }
-            //Normal message
+            //Normal message. Send message to chat
             else{
-
                 ObjectNode msgdata = Json.newObject();
-                msgdata.put("user",json.get("user").asText());
+                msgdata.put("name",json.get("user").asText());
                 msgdata.put("message",json.get("message").asText());
                 msgdata.put("color",color);
-                chat.tell(msgdata.toString(), getSelf());
+                chat.tell(msgdata, getSelf());
             }
         }else{
+            // Message from chat to client
             if (message instanceof ObjectNode){
                 out.tell(message.toString(), self());
             }else{
+                // Returned message sent by ChatManager. Sends suscribe message
                 if (message instanceof ActorRef) {
                     chat = (ActorRef) message;
-                    ObjectNode userdata = Json.newObject();
-                    userdata.put("user", username);
-                    chat.tell(userdata, getSelf());
+                    chat.tell(username, getSelf());
                 }
             }
         }
