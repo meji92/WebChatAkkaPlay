@@ -1,6 +1,7 @@
 package actors;
 
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -64,10 +65,26 @@ public class User extends UntypedActor {
             }else{
                 // Returned message sent by ChatManager. Sends suscribe message
                 if (message instanceof ActorRef) {
-                    chat = (ActorRef) message;
-                    chat.tell(username, getSelf());
+                    if (message == getSelf()){
+                        ObjectNode msg = Json.newObject();
+                        msg.put("type", "system");
+                        msg.put("message", "This user already exists");
+                        chat = null; //To avoid the dead letters when this actor do the postStop and the Chat reply
+                        out.tell(msg.toString(),getSelf());
+                        self().tell(PoisonPill.getInstance(), self());
+                    }else{
+                        chat = (ActorRef) message;
+                        chat.tell(username, getSelf());
+                    }
                 }
             }
+        }
+    }
+
+    // When the websocket are closed
+    public void postStop() throws Exception {
+        if (chat!=null){ //If I was connected to any chat, I unsubscribe
+            chat.tell(username,getSelf());
         }
     }
 

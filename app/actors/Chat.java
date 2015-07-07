@@ -30,9 +30,20 @@ public class Chat extends UntypedActor{
             for (Map.Entry<String, ActorRef> entry : users.entrySet()) {
                 entry.getValue().tell(message, getSelf());
             }
-            //Suscribe message
-        }else{
-            users.put((String)message,getSender());
+        }
+        //Suscribe message
+        else{
+            if (message instanceof String){
+                if (users.containsKey((String)message)){ //If I already have this user
+                    if (users.get((String)message)==getSender()){ //If the sender was already subscribed, unsubscribe it
+                        users.remove((String)message);
+                    }else{ //If is a new user with a already taken username, I reject it
+                        getSender().tell(getSender(),getSelf());
+                    }
+                }else{ //If is a new user, I subscribe it
+                    users.put((String)message,getSender());
+                }
+            }
         }
 
     }
