@@ -1,7 +1,6 @@
 package actors;
 
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import messages.GetChat;
 import messages.UnsubscribeChatManager;
@@ -13,10 +12,6 @@ import java.util.Map;
 public class ChatManager extends UntypedActor{
 
     private Map<String,ActorRef> chats;
-
-    //public static Props props(ActorRef out) {
-    //    return Props.create(ChatManager.class, out);
-    //}
 
     public ChatManager() {
         chats = new HashMap<String,ActorRef>();
