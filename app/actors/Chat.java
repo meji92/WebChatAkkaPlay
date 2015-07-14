@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import messages.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,26 +36,27 @@ public class Chat extends UntypedActor{
     @Override
     public void onReceive(Object message) throws Exception {
         // Normal message from user
-        if (message instanceof ObjectNode){
+        if (message instanceof Message){
             for (Map.Entry<String, ActorRef> entry : users.entrySet()) {
                 entry.getValue().tell(message, getSelf());
             }
         }
         //Suscribe message
         else{
-            if (message instanceof String){
-                if (users.containsKey(message)){ //If I already have this user
-                    if (users.get(message)==getSender()){ //If the sender was already subscribed, unsubscribe it
-                        users.remove(message);
-                        if (users.isEmpty()){ //If there aren't clients in this chat, I remove this chat
-                            chatManager.tell(chatName,getSelf());
-                            self().tell(PoisonPill.getInstance(), self());
-                        }
-                    }else{ //If is a new user with a already taken username, I reject it
-                        getSender().tell(getSender(),getSelf());
-                    }
+            if (message instanceof SubscribeChat){
+                if (users.containsKey(((SubscribeChat) message).getUser())){ //If I already have this user
+                    getSender().tell(new DuplicatedUser(), getSelf());
                 }else{ //If is a new user, I subscribe it
-                    users.put((String)message,getSender());
+                    users.put(((SubscribeChat) message).getUser(),getSender());
+                }
+            }else{
+                if (message instanceof UnsubscribeChat){
+                    users.remove(((UnsubscribeChat) message).getUser());
+                    if (users.isEmpty()){ //If there aren't clients in this chat, I remove this chat
+                        UnsubscribeChatManager unsubscribeChatManager = new UnsubscribeChatManager(chatName);
+                        chatManager.tell(unsubscribeChatManager,getSelf());
+                        self().tell(PoisonPill.getInstance(), self());
+                    }
                 }
             }
         }

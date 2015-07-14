@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import messages.*;
 import play.libs.Json;
 
 
@@ -48,33 +49,32 @@ public class User extends UntypedActor {
             //Initial message. Send the chat name to ChatManager
             if (!json.has("message")){
                 username = json.get("user").asText();
-                chatManager.tell(json.get("chat").asText(), getSelf());
+                GetChat getChat = new GetChat(json.get("chat").asText());
+                chatManager.tell(getChat, getSelf());
             }
             //Normal message. Send message to chat
             else{
-                ObjectNode msgdata = Json.newObject();
-                msgdata.put("name",json.get("user").asText());
-                msgdata.put("message",json.get("message").asText());
-                msgdata.put("color",color);
-                chat.tell(msgdata, getSelf());
+                Message msg = new Message(json.get("user").asText(),json.get("message").asText(),color);
+                chat.tell(msg, getSelf());
             }
         }else{
             // Message from chat to client
-            if (message instanceof ObjectNode){
-                out.tell(message.toString(), self());
+            if (message instanceof Message){
+                out.tell(((Message) message).getJson().toString(), self());
             }else{
                 // Returned message sent by ChatManager. Sends suscribe message
-                if (message instanceof ActorRef) {
-                    if (message == getSelf()){
+                if (message instanceof GetChat) {
+                    SubscribeChat subscribeChat = new SubscribeChat(username);
+                    chat = ((GetChat)message).getChat();
+                    chat.tell(subscribeChat,getSelf());
+                }else{
+                    if (message instanceof DuplicatedUser){
                         ObjectNode msg = Json.newObject();
                         msg.put("type", "system");
                         msg.put("message", "This user already exists");
                         chat = null; //To avoid the dead letters when this actor do the postStop and the Chat reply
                         out.tell(msg.toString(),getSelf());
                         self().tell(PoisonPill.getInstance(), self());
-                    }else{
-                        chat = (ActorRef) message;
-                        chat.tell(username, getSelf());
                     }
                 }
             }
@@ -84,7 +84,8 @@ public class User extends UntypedActor {
     // When the websocket are closed
     public void postStop() throws Exception {
         if (chat!=null){ //If I was connected to any chat, I unsubscribe
-            chat.tell(username,getSelf());
+            UnsubscribeChat unsubscribeChat = new UnsubscribeChat(username);
+            chat.tell(unsubscribeChat,getSelf());
         }
     }
 

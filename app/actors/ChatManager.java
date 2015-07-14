@@ -3,6 +3,8 @@ package actors;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import messages.GetChat;
+import messages.UnsubscribeChatManager;
 import play.libs.Akka;
 
 import java.util.HashMap;
@@ -10,7 +12,7 @@ import java.util.Map;
 
 public class ChatManager extends UntypedActor{
 
-    private Map chats;
+    private Map<String,ActorRef> chats;
 
     //public static Props props(ActorRef out) {
     //    return Props.create(ChatManager.class, out);
@@ -22,17 +24,18 @@ public class ChatManager extends UntypedActor{
 
     @Override
     public void onReceive(Object message) throws Exception {
-        if (message instanceof String) {
-            if (!chats.containsKey(message)){ //If i don't  have this chat, I create it
-                //chats.put(message, Akka.system().actorOf(Props.create(Chat.class)));
-                chats.put(message, Akka.system().actorOf(Chat.props(getSelf(),(String)message)));
-                getSender().tell(chats.get(message), getSelf());
+        if (message instanceof GetChat) {
+            if (!chats.containsKey(((GetChat) message).getChatname())){ //If i don't  have this chat, I create it
+                chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(),((GetChat) message).getChatname())));
+                ((GetChat)message).setChat(chats.get(((GetChat) message).getChatname()));
+                getSender().tell(message, getSelf());
             }else{
-                if (chats.get(message)!=getSender()) { // I have the chat and the sender is the chat -> I delete it
-                    getSender().tell(chats.get(message), getSelf());
-                }else{ // The sender is other client -> I send it the chat
-                    chats.remove(message);
-                }
+                ((GetChat)message).setChat(chats.get(((GetChat) message).getChatname()));
+                getSender().tell(message, getSelf());
+            }
+        }else{
+            if (message instanceof UnsubscribeChatManager){
+                chats.remove(((UnsubscribeChatManager) message).getChat());
             }
         }
     }
