@@ -26,12 +26,12 @@ import java.util.Map;
 public class ChatManager extends UntypedActor{
 
     private Map<String,ActorRef> chats;
-    private List <String> chatManagers;
+    //private List <String> chatManagers;
     Cluster cluster = Cluster.get(getContext().system());
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
     public ChatManager() {
-        chatManagers = new ArrayList<String>();
+        //chatManagers = new ArrayList<String>();
         chats = new HashMap<String,ActorRef>();
     }
 
@@ -52,7 +52,7 @@ public class ChatManager extends UntypedActor{
 
     @Override
     public void onReceive(Object message) throws Exception {
-        if (message instanceof String){
+        /**if (message instanceof String){
             System.out.println("//////////////////////////////////////////");
             System.out.println(message);
             System.out.println(getSender());
@@ -66,7 +66,7 @@ public class ChatManager extends UntypedActor{
                     System.out.println("Mensaje enviado a: "+ member.address() + "/user/ChatManager");
                 }
             }
-        }else{
+        }else{**/
             if (message instanceof GetChat) {
                 if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
                     chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname())));
@@ -83,8 +83,8 @@ public class ChatManager extends UntypedActor{
                     if (message instanceof MemberUp) {
                         MemberUp mUp = (MemberUp) message;
                         log.info("Member is Up: {}", mUp.member());
-                        chatManagers.add(mUp.member().address() + "/user/ChatManager");
-                        getContext().actorSelection(mUp.member().address() + "/user/ChatManager").tell("Hola", getSelf());
+                        //chatManagers.add(mUp.member().address() + "/user/ChatManager");
+                        //getContext().actorSelection(mUp.member().address() + "/user/ChatManager").tell("Hola", getSelf());
 
                     } else if (message instanceof UnreachableMember) {
                         UnreachableMember mUnreachable = (UnreachableMember) message;
@@ -102,6 +102,6 @@ public class ChatManager extends UntypedActor{
                     }
                 }
             }
-        }
+        //}
     }
 }

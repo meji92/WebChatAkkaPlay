@@ -1,34 +1,7 @@
-New log file opened at Thu Jul 02 11:54:55 CEST 2015 by 4355@c50
-Taking next connection to: 60474
-New client attempting to connect on port: 41944-60474
-  Address = /127.0.1.1:60474
-This client on port 41944 has uuid f9eb36f9-3ee6-42c8-86cd-48e59a0d692c configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
-Connected Clients: activator-f9eb36f9-3ee6-42c8-86cd-48e59a0d692c
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
-Checking to see if clients are empty...
-We have 1 non-daemon clients, continuing serving connections.
-Taking next connection to: 60474
+New log file opened at Mon Jul 20 17:17:02 CEST 2015 by 3328@c50
+Taking next connection to: 38686
+New client attempting to connect on port: 41722-38686
+  Address = /127.0.1.1:38686
+This client on port 41722 has uuid ea07286e-1293-4807-8be5-4d9ed43daf44 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-ea07286e-1293-4807-8be5-4d9ed43daf44
+Taking next connection to: 38686

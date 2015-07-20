@@ -1,4 +1,6 @@
 package messages;
 
-public class DuplicatedUser {
+import java.io.Serializable;
+
+public class DuplicatedUser implements Serializable{
 }
