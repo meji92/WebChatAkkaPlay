@@ -14,8 +14,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
-  "com.typesafe.akka" % "akka-cluster-tools_2.11" % akkaVersion,
-  "com.typesafe.akka" % "akka-contrib_2.11" % akkaVersion
+  "com.typesafe.akka" % "akka-cluster-tools_2.11" % akkaVersion
+  //"com.typesafe.akka" % "akka-contrib_2.11" % akkaVersion
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the
