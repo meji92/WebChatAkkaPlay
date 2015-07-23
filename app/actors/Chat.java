@@ -4,7 +4,8 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.contrib.pattern.DistributedPubSubExtension;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +36,8 @@ public class Chat extends UntypedActor{
         this.chatName = chatName;
         this.chatManager = chatManager;
         users = new HashMap<String,ActorRef>();
-        mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
+        //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
+        mediator = DistributedPubSub.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe("chat", getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
     }
@@ -74,6 +76,7 @@ public class Chat extends UntypedActor{
                 }else{
                     if (message instanceof DistributedPubSubMediator.SubscribeAck) {
                         log.info("subscribing///////////////////////////////////////////////////////////////////////////////////////////////////");
+                        log.error(((DistributedPubSubMediator.SubscribeAck) message).subscribe().toString());
                     }
                 }
             }
