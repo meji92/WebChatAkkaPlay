@@ -18,7 +18,7 @@ import views.html.chat;
 public class Application extends Controller {
 
     Config config = ConfigFactory.parseString(
-            "akka.remote.netty.tcp.port=8000").withFallback(
+            "akka.remote.netty.tcp.port=8001").withFallback(
             ConfigFactory.load());
 
     // Create an Akka system

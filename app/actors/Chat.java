@@ -24,21 +24,22 @@ public class Chat extends UntypedActor{
     ActorRef mediator;
 
 
-    public static Props props(ActorRef manager, String chatName) {
-        return Props.create(Chat.class, manager, chatName);
+    public static Props props(ActorRef manager, String chatName, ActorRef mediator) {
+        return Props.create(Chat.class, manager, chatName, mediator);
     }
 
     public Chat() {
         users = new HashMap<String,ActorRef>();
     }
 
-    public Chat(ActorRef chatManager, String chatName) {
+    public Chat(ActorRef chatManager, String chatName, ActorRef mediator) {
         this.chatName = chatName;
         this.chatManager = chatManager;
+        this.mediator = mediator;
         users = new HashMap<String,ActorRef>();
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
-        mediator = DistributedPubSub.get(getContext().system()).mediator();
-        mediator.tell(new DistributedPubSubMediator.Subscribe("chat", getSelf()), getSelf());
+        //mediator = DistributedPubSub.get(getContext().system()).mediator();
+        mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
     }
 
@@ -47,7 +48,7 @@ public class Chat extends UntypedActor{
         // Normal message from user
         if (message instanceof Message){
             if(getSender().equals(users.get(((Message) message).getName()))){ //If the message isn't from other node
-                mediator.tell(new DistributedPubSubMediator.Publish("chat", message), getSelf());
+                mediator.tell(new DistributedPubSubMediator.Publish(chatName, message), getSelf());
             }else{
                 for (Map.Entry<String, ActorRef> entry : users.entrySet()) {
                     entry.getValue().tell(message, getSelf());
@@ -62,7 +63,7 @@ public class Chat extends UntypedActor{
                         getSender().tell(new DuplicatedUser(), getSelf());
                     }
                 }else{ //If is a new user, I subscribe it
-                    mediator.tell(new DistributedPubSubMediator.Publish("chat", message), getSelf());
+                    mediator.tell(new DistributedPubSubMediator.Publish(chatName, message), getSelf());
                     users.put(((SubscribeChat) message).getUser(),getSender());
                 }
             }else{
