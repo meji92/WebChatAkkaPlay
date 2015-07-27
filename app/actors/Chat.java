@@ -24,21 +24,20 @@ public class Chat extends UntypedActor{
     ActorRef mediator;
 
 
-    public static Props props(ActorRef manager, String chatName, ActorRef mediator) {
-        return Props.create(Chat.class, manager, chatName, mediator);
+    public static Props props(ActorRef manager, String chatName) {
+        return Props.create(Chat.class, manager, chatName);
     }
 
     public Chat() {
         users = new HashMap<String,ActorRef>();
     }
 
-    public Chat(ActorRef chatManager, String chatName, ActorRef mediator) {
+    public Chat(ActorRef chatManager, String chatName) {
         this.chatName = chatName;
         this.chatManager = chatManager;
-        this.mediator = mediator;
         users = new HashMap<String,ActorRef>();
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
-        //mediator = DistributedPubSub.get(getContext().system()).mediator();
+        mediator = DistributedPubSub.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
     }
@@ -60,7 +59,7 @@ public class Chat extends UntypedActor{
             if (message instanceof SubscribeChat){
                 if (users.containsKey(((SubscribeChat) message).getUser())){ //If I already have this user
                     if (!getSender().equals(getSelf())) {
-                        getSender().tell(new DuplicatedUser(), getSelf());
+                        getSender().tell(new DuplicatedUser(((SubscribeChat) message).getUser()), getSelf());
                     }
                 }else{ //If is a new user, I subscribe it
                     mediator.tell(new DistributedPubSubMediator.Publish(chatName, message), getSelf());
