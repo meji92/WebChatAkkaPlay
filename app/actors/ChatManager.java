@@ -45,6 +45,7 @@ public class ChatManager extends UntypedActor{
         cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
                 MemberEvent.class, UnreachableMember.class);
         //#subscribe
+        System.out.println(Akka.system().toString()+"////////////////////////////////////////////////////////////");
     }
 
     //re-subscribe when restart
@@ -60,10 +61,10 @@ public class ChatManager extends UntypedActor{
                 getSender().tell(mediator,getSelf());
             }
         }
-        if (message instanceof ActorRef){
-            mediator = (ActorRef)message;
-            System.out.println("Sobreescrito mediator//////////"+message.toString());
-        }
+        //if (message instanceof ActorRef){
+        //    mediator = (ActorRef)message;
+        //    System.out.println("Sobreescrito mediator//////////"+message.toString());
+        //}
         if (message instanceof CurrentClusterState) {
             System.out.println("Recibido CurrentClusterState");
             CurrentClusterState state = (CurrentClusterState) message;

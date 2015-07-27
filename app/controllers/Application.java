@@ -18,14 +18,14 @@ import views.html.chat;
 public class Application extends Controller {
 
     Config config = ConfigFactory.parseString(
-            "akka.remote.netty.tcp.port=8001").withFallback(
+            "akka.remote.netty.tcp.port=8000").withFallback(
             ConfigFactory.load());
 
     // Create an Akka system
-    ActorSystem system = ActorSystem.create("ClusterSystem", config);
+    //ActorSystem system = ActorSystem.create("ClusterSystem", config);
 
-    //private ActorRef chatManager = Akka.system().actorOf(Props.create(ChatManager.class));
-    private ActorRef chatManager = system.actorOf(Props.create(ChatManager.class),"ChatManager");
+    private ActorRef chatManager = Akka.system().actorOf(Props.create(ChatManager.class), "ChatManager");
+    //private ActorRef chatManager = system.actorOf(Props.create(ChatManager.class),"ChatManager");
 
     public Result index() {
         return ok(chat.render());
