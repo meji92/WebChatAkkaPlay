@@ -1,4 +1,35 @@
-This is your new Play application
-=================================
+This is a distributed webChat with playFramework and akka.
 
-This file will be packaged with your application, when using `activator dist`.
+To start a server, you should do inside the project folder:
+
+    you@yourPC:~$PathToTheProject/WebChatPlayAkka$ ./activator
+
+    [play-java] $ run 9000
+
+To start a second server, you must change the port in chat.scala.html (ln 63):
+
+    //create a new WebSocket object.
+    			var wsUri = "ws://localhost:9001/chat";
+    			websocket = new WebSocket(wsUri);
+
+and in application.conf (ln 54):
+
+        remote {
+                log-remote-lifecycle-events = off
+                netty.tcp {
+                  //"akka.remote.netty.tcp.port=8000"
+                  hostname = "127.0.0.1"
+                  port = 8001
+                }
+              }
+
+And now, you can start the new server in port 9001:
+
+    you@yourPC:~$PathToTheProject/WebChatPlayAkka$ ./activator
+
+    [play-java] $ run 9001
+
+
+
+
+
