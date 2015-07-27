@@ -24,20 +24,20 @@ public class Chat extends UntypedActor{
     ActorRef mediator;
 
 
-    public static Props props(ActorRef manager, String chatName) {
-        return Props.create(Chat.class, manager, chatName);
+    public static Props props(ActorRef manager, String chatName, ActorRef mediator) {
+        return Props.create(Chat.class, manager, chatName, mediator);
     }
 
     public Chat() {
         users = new HashMap<String,ActorRef>();
     }
 
-    public Chat(ActorRef chatManager, String chatName) {
+    public Chat(ActorRef chatManager, String chatName, ActorRef mediator) {
         this.chatName = chatName;
         this.chatManager = chatManager;
         users = new HashMap<String,ActorRef>();
+        this.mediator = mediator;
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
-        mediator = DistributedPubSub.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
     }
@@ -62,7 +62,7 @@ public class Chat extends UntypedActor{
                         getSender().tell(new DuplicatedUser(((SubscribeChat) message).getUser()), getSelf());
                     }
                 }else{ //If is a new user, I subscribe it
-                    mediator.tell(new DistributedPubSubMediator.Publish(chatName, message), getSelf());
+                    mediator.tell(new DistributedPubSubMediator.Publish(chatName, new CheckUser(((SubscribeChat) message).getUser())), getSelf());
                     users.put(((SubscribeChat) message).getUser(),getSender());
                 }
             }else{
@@ -74,9 +74,22 @@ public class Chat extends UntypedActor{
                         self().tell(PoisonPill.getInstance(), self());
                     }
                 }else{
-                    if (message instanceof DistributedPubSubMediator.SubscribeAck) {
-                        log.info("subscribing///////////////////////////////////////////////////////////////////////////////////////////////////");
-                        log.error(((DistributedPubSubMediator.SubscribeAck) message).subscribe().toString());
+                    if (message instanceof CheckUser){
+                        if (users.containsKey(((CheckUser) message).getUser())) { //If I already have this user
+                            if (!getSender().equals(getSelf())) {
+                                getSender().tell(new DuplicatedUser(((CheckUser) message).getUser()), getSelf());
+                            }
+                        }
+                    }else{
+                        if (message instanceof DuplicatedUser) {
+                            users.get(((DuplicatedUser) message).getUser()).tell(message, getSelf());
+                            users.remove(((DuplicatedUser) message).getUser());
+                            if (users.isEmpty()) { //If there aren't clients in this chat, I remove this chat
+                                UnsubscribeChatManager unsubscribeChatManager = new UnsubscribeChatManager(chatName);
+                                chatManager.tell(unsubscribeChatManager, getSelf());
+                                self().tell(PoisonPill.getInstance(), self());
+                            }
+                        }
                     }
                 }
             }

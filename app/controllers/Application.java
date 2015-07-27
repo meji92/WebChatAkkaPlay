@@ -17,9 +17,9 @@ import views.html.chat;
 
 public class Application extends Controller {
 
-    Config config = ConfigFactory.parseString(
+    /**Config config = ConfigFactory.parseString(
             "akka.remote.netty.tcp.port=8000").withFallback(
-            ConfigFactory.load());
+            ConfigFactory.load());**/
 
     // Create an Akka system
     //ActorSystem system = ActorSystem.create("ClusterSystem", config);

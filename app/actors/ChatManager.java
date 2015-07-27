@@ -29,10 +29,12 @@ public class ChatManager extends UntypedActor{
     private List <String> chatManagers;
     Cluster cluster = Cluster.get(getContext().system());
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+    private ActorRef mediator;
 
     public ChatManager() {
         chatManagers = new ArrayList<String>();
         chats = new HashMap<String,ActorRef>();
+        mediator = DistributedPubSub.get(getContext().system()).mediator();
     }
 
     //subscribe to cluster changes
@@ -53,7 +55,7 @@ public class ChatManager extends UntypedActor{
     public void onReceive(Object message) throws Exception {
         if (message instanceof GetChat) {
             if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
-                chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname())));
+                chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname(), mediator)));
                 ((GetChat) message).setChat(chats.get(((GetChat) message).getChatname()));
                 getSender().tell(message, getSelf());
             } else { //If I already have this chat, only I send it back the ActorRef of the chat (inside the same message I've received)
