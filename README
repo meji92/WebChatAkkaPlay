@@ -1,5 +1,9 @@
 This is a distributed webChat with playFramework and akka.
 
+IMPORTANT:
+Because SBT can't resolve some dependences, you need to start a server with activator to resolve this dependences before importing the project in your ide like a SBT project.
+
+
 To start a server, you should do inside the project folder:
 
     you@yourPC:~$PathToTheProject/WebChatPlayAkka$ ./activator
