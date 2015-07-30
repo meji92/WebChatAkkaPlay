@@ -1,3 +1,5 @@
+import io.apigee.trireme.node10.node.cluster
+
 name := """play-java"""
 
 version := "1.0-SNAPSHOT"
@@ -14,7 +16,9 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
-  "com.typesafe.akka" % "akka-cluster-tools_2.11" % akkaVersion
+  "com.typesafe.akka" % "akka-cluster-tools_2.11" % akkaVersion,
+  "com.typesafe.akka" % "akka-cluster-metrics_2.11" % akkaVersion,
+  "io.kamon" % "sigar-loader" % "1.6.5-rev001"
   //"com.typesafe.akka" % "akka-contrib_2.11" % akkaVersion
 )
 
