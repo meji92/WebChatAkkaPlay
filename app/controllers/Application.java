@@ -8,12 +8,14 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import jdk.nashorn.internal.objects.Global;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
 import views.html.chat;
+import play.GlobalSettings;
 
 public class Application extends Controller {
 
@@ -24,7 +26,7 @@ public class Application extends Controller {
     // Create an Akka system
     //ActorSystem system = ActorSystem.create("ClusterSystem", config);
 
-    private ActorRef chatManager = Akka.system().actorOf(Props.create(ChatManager.class), "ChatManager");
+    //private ActorRef chatManager = Akka.system().actorOf(Props.create(ChatManager.class), "ChatManager");
     //private ActorRef chatManager = system.actorOf(Props.create(ChatManager.class),"ChatManager");
 
     public Result index() {
@@ -39,7 +41,7 @@ public class Application extends Controller {
     public WebSocket<String> socket() {
         return WebSocket.withActor(new F.Function<ActorRef, Props>() {
             public Props apply(ActorRef out) throws Throwable {
-                return User.props(out,chatManager);
+                return User.props(out, Akka.system().actorFor("akka://application/user/ChatManager"));
                 //return Props.create(User.class, out, chatManager);
                 //return Props.create(EchoUser.class, out);
             }
