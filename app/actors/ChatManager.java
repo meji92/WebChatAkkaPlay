@@ -17,11 +17,14 @@ import akka.event.LoggingAdapter;
 import messages.GetChat;
 import messages.UnsubscribeChatManager;
 import play.libs.Akka;
+import play.mvc.Result;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static play.mvc.Results.ok;
 
 public class ChatManager extends UntypedActor{
 
@@ -93,10 +96,9 @@ public class ChatManager extends UntypedActor{
                         //}
                     //}
                 }else{
-                    unhandled(message);
+                    //unhandled(message);
                 }
             }
         }
     }
-
 }

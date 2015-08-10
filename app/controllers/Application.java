@@ -1,21 +1,14 @@
 package controllers;
 
-import actors.ChatManager;
-import actors.EchoUser;
 import actors.User;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import jdk.nashorn.internal.objects.Global;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
 import views.html.chat;
-import play.GlobalSettings;
 
 public class Application extends Controller {
 
@@ -30,6 +23,7 @@ public class Application extends Controller {
     //private ActorRef chatManager = system.actorOf(Props.create(ChatManager.class),"ChatManager");
 
     public Result index() {
+
         return ok(chat.render());
     }
 
