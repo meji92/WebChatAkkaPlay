@@ -8,7 +8,8 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
-import views.html.chat;
+
+import static akka.pattern.Patterns.ask;
 
 public class Application extends Controller {
 
@@ -22,9 +23,17 @@ public class Application extends Controller {
     //private ActorRef chatManager = Akka.system().actorOf(Props.create(ChatManager.class), "ChatManager");
     //private ActorRef chatManager = system.actorOf(Props.create(ChatManager.class),"ChatManager");
 
-    public Result index() {
-
-        return ok(chat.render());
+    public F.Promise<Result> index() {
+        //return ok(chat.render());
+        ActorRef myActor = Akka.system().actorFor("akka://application/user/ChatManager");
+        //ActorSelection myActor = Akka.system().actorSelection("user/my-actor");
+        return F.Promise.wrap(ask(myActor, "hello", 10000)).map(
+                new F.Function<Object, Result>() {
+                    public Result apply(Object response) {
+                        return ok((play.twirl.api.Html)response);
+                    }
+                }
+        );
     }
 
     // Java 8 version of the method to create the user actor

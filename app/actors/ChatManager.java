@@ -4,27 +4,21 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
-import akka.cluster.ClusterEvent.MemberEvent;
-import akka.cluster.ClusterEvent.MemberUp;
-import akka.cluster.ClusterEvent.MemberRemoved;
-import akka.cluster.ClusterEvent.UnreachableMember;
-import akka.cluster.ClusterEvent.CurrentClusterState;
-import akka.cluster.Member;
-import akka.cluster.MemberStatus;
+import akka.cluster.ClusterEvent.*;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import akka.routing.FromConfig;
 import messages.GetChat;
+import messages.SendChat;
 import messages.UnsubscribeChatManager;
 import play.libs.Akka;
-import play.mvc.Result;
+import views.html.chat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static play.mvc.Results.ok;
 
 public class ChatManager extends UntypedActor{
 
@@ -33,6 +27,8 @@ public class ChatManager extends UntypedActor{
     Cluster cluster = Cluster.get(getContext().system());
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     private ActorRef mediator;
+    ActorRef router = getContext().actorOf(FromConfig.getInstance().props(), "router");
+
 
     public ChatManager() {
         chatManagers = new ArrayList<String>();
@@ -56,6 +52,16 @@ public class ChatManager extends UntypedActor{
 
     @Override
     public void onReceive(Object message) throws Exception {
+        if (message instanceof String){
+            //getSender().tell(chat.render(), getSelf());
+            System.out.println(getSender().toString());
+            getSender().tell(chat.render(), getSelf());
+            router.tell(new SendChat(), getSelf());
+        }
+        if (message instanceof SendChat){
+            System.out.println("envio respuesta a: "+getSender().toString());
+            getSender().tell(chat.render(), getSelf());
+        }
         if (message instanceof GetChat) {
             if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
                 chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname(), mediator)));

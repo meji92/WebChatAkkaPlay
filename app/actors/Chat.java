@@ -4,7 +4,6 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -63,7 +62,7 @@ public class Chat extends UntypedActor{
                     }
                 }else{ //If is a new user, I subscribe it
                     mediator.tell(new DistributedPubSubMediator.Publish(chatName, new CheckUser(((SubscribeChat) message).getUser())), getSelf());
-                    users.put(((SubscribeChat) message).getUser(),getSender());
+                    users.put(((SubscribeChat) message).getUser(), getSender());
                 }
             }else{
                 if (message instanceof UnsubscribeChat){
