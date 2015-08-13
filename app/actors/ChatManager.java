@@ -43,6 +43,7 @@ public class ChatManager extends UntypedActor{
         cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
                 MemberEvent.class, UnreachableMember.class);
         //#subscribe
+        System.out.println(router.path());
     }
 
     @Override
