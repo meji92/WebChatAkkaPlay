@@ -43,7 +43,7 @@ public class ChatManager extends UntypedActor{
         cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
                 MemberEvent.class, UnreachableMember.class);
         //#subscribe
-        System.out.println(router.path());
+        //System.out.println(router.path());
     }
 
     @Override
@@ -56,8 +56,8 @@ public class ChatManager extends UntypedActor{
         if (message instanceof String){
             //getSender().tell(chat.render(), getSelf());
             System.out.println(getSender().toString());
-            getSender().tell(chat.render(), getSelf());
-            router.tell(new SendChat(), getSelf());
+            //getSender().tell(chat.render(), getSelf());
+            router.tell(new SendChat(), getSender());
         }
         if (message instanceof SendChat){
             System.out.println("envio respuesta a: "+getSender().toString());
