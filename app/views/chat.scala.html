@@ -1,3 +1,5 @@
+@(ip: String)
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,7 +63,8 @@
 			
 			//create a new WebSocket object.
 			//var wsUri = "ws://localhost:9000/chat";
-			var wsUri = "ws://192.168.1.204:9000/chat";
+			//var wsUri = "ws://192.168.1.204:9000/chat";
+			var wsUri = "ws://@ip/chat";
 			websocket = new WebSocket(wsUri);
 			
 		 	websocket.onopen = function(ev) { // connection is open 

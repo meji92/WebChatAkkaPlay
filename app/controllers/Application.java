@@ -8,6 +8,7 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
+import views.html.chat;
 
 import static akka.pattern.Patterns.ask;
 
@@ -30,7 +31,8 @@ public class Application extends Controller {
         return F.Promise.wrap(ask(myActor, "hello", 10000)).map(
                 new F.Function<Object, Result>() {
                     public Result apply(Object response) {
-                        return ok((play.twirl.api.Html)response);
+                        //return ok((play.twirl.api.Html)response);
+                        return ok(chat.render("192.168.1.204:9000"));
                     }
                 }
         );

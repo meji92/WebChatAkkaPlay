@@ -13,7 +13,6 @@ import messages.GetChat;
 import messages.SendChat;
 import messages.UnsubscribeChatManager;
 import play.libs.Akka;
-import views.html.chat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +60,7 @@ public class ChatManager extends UntypedActor{
         }
         if (message instanceof SendChat){
             System.out.println("envio respuesta a: "+getSender().toString());
-            getSender().tell(chat.render(), getSelf());
+            getSender().tell(message, getSelf());
         }
         if (message instanceof GetChat) {
             if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
