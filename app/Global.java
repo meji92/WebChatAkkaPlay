@@ -2,7 +2,6 @@ import actors.ChatManager;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import play.GlobalSettings;
-import play.Logger;
 import play.libs.Akka;
 
 public class Global extends GlobalSettings {
