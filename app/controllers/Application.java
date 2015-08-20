@@ -32,7 +32,8 @@ public class Application extends Controller {
                 new F.Function<Object, Result>() {
                     public Result apply(Object response) {
                         //return ok((play.twirl.api.Html)response);
-                        return ok(chat.render("192.168.1.204:9000"));
+                        //return ok(chat.render("192.168.1.204:9000"));
+                        return ok(chat.render(response+":9000"));
                     }
                 }
         );

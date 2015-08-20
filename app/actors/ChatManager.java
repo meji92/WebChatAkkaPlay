@@ -12,8 +12,10 @@ import akka.routing.FromConfig;
 import messages.GetChat;
 import messages.SendChat;
 import messages.UnsubscribeChatManager;
+import play.Play;
 import play.libs.Akka;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,9 @@ public class ChatManager extends UntypedActor{
             router.tell(new SendChat(), getSender());
         }
         if (message instanceof SendChat){
-            System.out.println("envio respuesta a: "+getSender().toString());
+            InetAddress IP=InetAddress.getLocalHost();
+            System.out.println(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"));
+            System.out.println("envio respuesta "+ InetAddress.getLocalHost() + "a: "+getSender().toString());
             getSender().tell(message, getSelf());
         }
         if (message instanceof GetChat) {
