@@ -60,7 +60,7 @@ public class ChatManager extends UntypedActor{
             //getSender().tell(chat.render(), getSelf());
             Runtime runtime = Runtime.getRuntime();
             System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
-            System.out.print(" / " + runtime.maxMemory());
+            System.out.println(" / " + runtime.maxMemory());
             router.tell(new SendChat(), getSender());
         }
         if (message instanceof SendChat){
@@ -78,7 +78,7 @@ public class ChatManager extends UntypedActor{
             System.out.println("Max Memory:" + runtime.maxMemory());**/
         //heap / HeapMetricsSelector - Used and max JVM heap memory. Weights based on remaining heap capacity; (max - used) / max
             System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
-            System.out.print(" / " + runtime.maxMemory());
+            System.out.println(" / " + runtime.maxMemory());
             getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
         }
         if (message instanceof GetChat) {
