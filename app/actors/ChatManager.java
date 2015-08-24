@@ -58,12 +58,31 @@ public class ChatManager extends UntypedActor{
             //getSender().tell(chat.render(), getSelf());
             System.out.println(getSender().toString());
             //getSender().tell(chat.render(), getSelf());
+            Runtime runtime = Runtime.getRuntime();
+            System.out.println("##### Heap utilization statistics [MB] #####");
+            //Print used memory
+            System.out.println("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()));
+            //Print free memory
+            System.out.println("Free Memory:" + runtime.freeMemory());
+            //Print total available memory
+            System.out.println("Total Memory:" + runtime.totalMemory());
+            //Print Maximum available memory
+            System.out.println("Max Memory:" + runtime.maxMemory());
             router.tell(new SendChat(), getSender());
         }
         if (message instanceof SendChat){
             InetAddress IP=InetAddress.getLocalHost();
-            System.out.println(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"));
             System.out.println("envio respuesta "+ Play.application().configuration().getString("akka.remote.netty.tcp.hostname") + "a: "+getSender().toString());
+            Runtime runtime = Runtime.getRuntime();
+            System.out.println("##### Heap utilization statistics [MB] #####");
+            //Print used memory
+            System.out.println("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()));
+            //Print free memory
+            System.out.println("Free Memory:" + runtime.freeMemory());
+            //Print total available memory
+            System.out.println("Total Memory:" + runtime.totalMemory());
+            //Print Maximum available memory
+            System.out.println("Max Memory:" + runtime.maxMemory());
             getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
         }
         if (message instanceof GetChat) {
