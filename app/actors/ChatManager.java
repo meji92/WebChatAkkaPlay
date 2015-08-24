@@ -63,8 +63,8 @@ public class ChatManager extends UntypedActor{
         if (message instanceof SendChat){
             InetAddress IP=InetAddress.getLocalHost();
             System.out.println(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"));
-            System.out.println("envio respuesta "+ InetAddress.getLocalHost() + "a: "+getSender().toString());
-            getSender().tell(message, getSelf());
+            System.out.println("envio respuesta "+ Play.application().configuration().getString("akka.remote.netty.tcp.hostname") + "a: "+getSender().toString());
+            getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
         }
         if (message instanceof GetChat) {
             if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
