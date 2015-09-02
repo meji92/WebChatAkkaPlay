@@ -12,7 +12,6 @@ public class Global extends GlobalSettings {
     public void onStart(play.Application application) {
         super.onStart(application);
         chatManager = Akka.system().actorOf(Props.create(ChatManager.class), "ChatManager");
-
     }
 
     public ActorRef getChatManager() {

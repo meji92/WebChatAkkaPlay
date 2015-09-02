@@ -15,7 +15,6 @@ import messages.UnsubscribeChatManager;
 import play.Play;
 import play.libs.Akka;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +42,6 @@ public class ChatManager extends UntypedActor{
         //#subscribe
         cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
                 MemberEvent.class, UnreachableMember.class);
-        //#subscribe
-        //System.out.println(router.path());
     }
 
     @Override
@@ -54,74 +51,62 @@ public class ChatManager extends UntypedActor{
 
     @Override
     public void onReceive(Object message) throws Exception {
-        if (message instanceof String){
-            //getSender().tell(chat.render(), getSelf());
-            //System.out.println(getSender().toString());
-            //getSender().tell(chat.render(), getSelf());
-            Runtime runtime = Runtime.getRuntime();
+        if (message instanceof String) {
+            //Runtime runtime = Runtime.getRuntime();
             //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
             //System.out.println(" / " + runtime.maxMemory());
             router.tell(new SendChat(), getSender());
-        }
-        if (message instanceof SendChat){
-            InetAddress IP=InetAddress.getLocalHost();
-            //System.out.println("envio respuesta "+ Play.application().configuration().getString("akka.remote.netty.tcp.hostname") + "a: "+getSender().toString());
-            Runtime runtime = Runtime.getRuntime();
-            /**System.out.println("##### Heap utilization statistics [MB] #####");
-            //Print used memory
-            System.out.println("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()));
-            //Print free memory
-            System.out.println("Free Memory:" + runtime.freeMemory());
-            //Print total available memory
-            System.out.println("Total Memory:" + runtime.totalMemory());
-            //Print Maximum available memory
-            System.out.println("Max Memory:" + runtime.maxMemory());**/
-        //heap / HeapMetricsSelector - Used and max JVM heap memory. Weights based on remaining heap capacity; (max - used) / max
-            //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
-            //System.out.println(" / " + runtime.maxMemory());
-            getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
-        }
-        if (message instanceof GetChat) {
-            if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
-                chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname(), mediator)));
-                ((GetChat) message).setChat(chats.get(((GetChat) message).getChatname()));
-                getSender().tell(message, getSelf());
-            } else { //If I already have this chat, only I send it back the ActorRef of the chat (inside the same message I've received)
-                ((GetChat) message).setChat(chats.get(((GetChat) message).getChatname()));
-                getSender().tell(message, getSelf());
-            }
         } else {
-            if (message instanceof UnsubscribeChatManager) {
-                chats.remove(((UnsubscribeChatManager) message).getChat());
+            if (message instanceof SendChat) {
+                /**Runtime runtime = Runtime.getRuntime();
+                 System.out.println("##### Heap utilization statistics [MB] #####");
+                 //Print used memory
+                 System.out.println("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()));
+                 //Print free memory
+                 System.out.println("Free Memory:" + runtime.freeMemory());
+                 //Print total available memory
+                 System.out.println("Total Memory:" + runtime.totalMemory());
+                 //Print Maximum available memory
+                 System.out.println("Max Memory:" + runtime.maxMemory());**/
+                //heap HeapMetricsSelector - Used and max JVM heap memory. Weights based on remaining heap capacity; (max - used) / max
+                //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
+                //System.out.println(" / " + runtime.maxMemory());
+                getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
             } else {
-                if (message instanceof MemberUp) {
-                    MemberUp mUp = (MemberUp) message;
-                    log.info("Member is Up: {}", mUp.member());
-                        /**chatManagers.add(mUp.member().address() + "/user/ChatManager");
-                        if (!mUp.member().equals(getSelf())){
-                            getContext().actorSelection(mUp.member().address() + "/user/ChatManager").tell(new GetMediator(), getSelf());
-                        }**/
+                if (message instanceof GetChat) {
+                    if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
+                        chats.put(((GetChat) message).getChatname(), Akka.system().actorOf(Chat.props(getSelf(), ((GetChat) message).getChatname(), mediator)));
+                        ((GetChat) message).setChat(chats.get(((GetChat) message).getChatname()));
+                        getSender().tell(message, getSelf());
+                    } else { //If I already have this chat, only I send it back the ActorRef of the chat (inside the same message I've received)
+                        ((GetChat) message).setChat(chats.get(((GetChat) message).getChatname()));
+                        getSender().tell(message, getSelf());
+                    }
+                } else {
+                    if (message instanceof UnsubscribeChatManager) {
+                        chats.remove(((UnsubscribeChatManager) message).getChat());
+                    } else {
+                        if (message instanceof MemberUp) {
+                            MemberUp mUp = (MemberUp) message;
+                            log.info("Member is Up: {}", mUp.member());
 
-                } else if (message instanceof UnreachableMember) {
-                    UnreachableMember mUnreachable = (UnreachableMember) message;
-                    log.info("Member detected as unreachable: {}", mUnreachable.member());
+                        } else if (message instanceof UnreachableMember) {
+                            UnreachableMember mUnreachable = (UnreachableMember) message;
+                            log.info("Member detected as unreachable: {}", mUnreachable.member());
 
-                } else if (message instanceof MemberRemoved) {
-                    MemberRemoved mRemoved = (MemberRemoved) message;
-                    log.info("Member is Removed: {}", mRemoved.member());
+                        } else if (message instanceof MemberRemoved) {
+                            MemberRemoved mRemoved = (MemberRemoved) message;
+                            log.info("Member is Removed: {}", mRemoved.member());
 
-                } else if (message instanceof MemberEvent) {
-                    // ignore
+                        } else if (message instanceof MemberEvent) {
+                            // ignore
 
-                } else if (message instanceof CurrentClusterState) {
-                    CurrentClusterState state = (CurrentClusterState) message;
-                    //for (Member member : state.getMembers()) {
-                        //if (member.status().equals(MemberStatus.up())) {
-                            //getContext().actorSelection(member.address() + "/user/ChatManager").tell("Hola", getSelf());
-                        //}
-                    //}
-                }else{
-                    //unhandled(message);
+                        } else if (message instanceof CurrentClusterState) {
+                            CurrentClusterState state = (CurrentClusterState) message;
+                        } else {
+                            unhandled(message);
+                        }
+                    }
                 }
             }
         }
