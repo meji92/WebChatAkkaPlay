@@ -6,12 +6,11 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import messages.*;
 import play.libs.Json;
+
+import java.io.IOException;
 
 
 public class User extends UntypedActor {
@@ -55,7 +54,12 @@ public class User extends UntypedActor {
             //Normal message. Send message to chat
             else{
                 Message msg = new Message(json.get("user").asText(),json.get("message").asText(),color);
-                chat.tell(msg, getSelf());
+                //To avoid the first message to be sent before the chat actorRef is received
+                if (chat!= null){
+                    chat.tell(msg, getSelf());
+                }else{
+                    getSelf().tell(message,getSender());
+                }
             }
         }else{
             // Message from chat to client
