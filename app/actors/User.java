@@ -11,6 +11,8 @@ import messages.*;
 import play.libs.Json;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class User extends UntypedActor {
@@ -21,6 +23,7 @@ public class User extends UntypedActor {
     private ObjectMapper mapper = new ObjectMapper();
     private String username;
     private String color;
+    private List<Message> unsendMessages;
 
     public static Props props(ActorRef out) {
         return Props.create(User.class, out);
@@ -34,6 +37,7 @@ public class User extends UntypedActor {
         this.out = out;
         this.chatManager = chatManager;
         this.color = getRandomColor();
+        this.unsendMessages = new ArrayList<Message>();
     }
 
     public void onReceive(Object message) throws Exception {
@@ -54,11 +58,11 @@ public class User extends UntypedActor {
             //Normal message. Send message to chat
             else{
                 Message msg = new Message(json.get("user").asText(),json.get("message").asText(),color);
-                //To avoid the first message to be sent before the chat actorRef is received
+                //To avoid the first messages to be sent before the chat actorRef is received
                 if (chat!= null){
                     chat.tell(msg, getSelf());
                 }else{
-                    getSelf().tell(message,getSender());
+                    unsendMessages.add(msg);
                 }
             }
         }else{
@@ -71,6 +75,11 @@ public class User extends UntypedActor {
                     SubscribeChat subscribeChat = new SubscribeChat(username);
                     chat = ((GetChat)message).getChat();
                     chat.tell(subscribeChat,getSelf());
+
+                    for (Message msg: unsendMessages){
+                        chat.tell(msg, getSelf());
+                    }
+                    unsendMessages.clear();
                 }else{
                     if (message instanceof DuplicatedUser){
                         ObjectNode msg = Json.newObject();
