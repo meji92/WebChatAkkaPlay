@@ -127,10 +127,10 @@
 				$('#message_box')
 						.append(
 								"<div class=\"system_msg\">Connection Closed</div>");
-				connection(user, chat, false, "ws://@ip2/chat");
-				$('#message_box')
-						.append(
-								"<div class=\"system_msg\">Reconecting...</div>");
+				if (init == true){
+					connection(user, chat, false, "ws://@ip2/chat");
+					$('#message_box').append("<div class=\"system_msg\">Reconecting...</div>");
+				}
 			};
 
 			$('#send-btn').click(function() { //use clicks message send button
