@@ -80,9 +80,11 @@
 			websocket = new WebSocket(wsUri);
 
 		 	websocket.onopen = function(ev) { // connection is open
-				$('#message_box')
-						.append(
-								"<div class=\"system_msg\">Connected!</div>"); //notify user
+				if (init == true){
+					$('#message_box')
+							.append(
+									"<div class=\"system_msg\">Connected!</div>"); //notify user
+				}
 				//prepare json data
 				var msg = {
 					chat : chat,
@@ -102,9 +104,11 @@
 				var ucolor = msg.color; //color
 
 				if (type == 'system') {
-					$('#message_box').append(
-							"<div class=\"system_msg\">" + umsg
-									+ "</div>");
+					if (init == true){
+						$('#message_box').append(
+								"<div class=\"system_msg\">" + umsg
+										+ "</div>");
+					}
 				} else {
 					$('#message_box')
 					.append(
@@ -124,12 +128,15 @@
 								+ ev.data + "</div>");
 			};
 			websocket.onclose = function(ev) {
-				$('#message_box')
-						.append(
-								"<div class=\"system_msg\">Connection Closed</div>");
 				if (init == true){
 					connection(user, chat, false, "ws://@ip2/chat");
-					$('#message_box').append("<div class=\"system_msg\">Reconecting...</div>");
+					//$('#message_box')
+					//		.append(
+					//				"<div class=\"system_msg\">Reconecting...</div>");
+				}else{
+					$('#message_box')
+						.append(
+								"<div class=\"system_msg\">Connection Closed</div>");
 				}
 			};
 
