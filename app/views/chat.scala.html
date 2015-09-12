@@ -49,25 +49,37 @@
 		src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
 	<script language="javascript" type="text/javascript">
-		$(document).ready(function() {
-			
-			var chat = prompt("Chat name", "chat");			
-			if(chat == null || chat === ''){
-				chat = "chat";
+		var userG = "";
+		function connectionInit(){
+			connection("", "", true, "ws://@ip/chat")
+		}
+
+		function connection(user2, chat2, init, wsUri){
+
+			if (init == true){
+				var chat = prompt("Chat name", "chat");
+				if(chat == null || chat === ''){
+					chat = "chat";
+				}
+
+				var user = prompt("User name", "user");
+				if(user == null || user === ''){
+					user = "user";
+					userG = "user"
+				}
+			}else{
+				user = user2;
+				userG = user2;
+				chat = chat2;
 			}
-			
-			var user = prompt("User name", "user");			
-			if(user == null || user === ''){
-				user = "user";
-			}
-			
+
 			//create a new WebSocket object.
 			//var wsUri = "ws://localhost:9000/chat";
 			//var wsUri = "ws://192.168.1.204:9000/chat";
-			var wsUri = "ws://@ip/chat";
+			//var wsUri = "ws://@ip/chat";
 			websocket = new WebSocket(wsUri);
-			
-		 	websocket.onopen = function(ev) { // connection is open 
+
+		 	websocket.onopen = function(ev) { // connection is open
 				$('#message_box')
 						.append(
 								"<div class=\"system_msg\">Connected!</div>"); //notify user
@@ -78,26 +90,7 @@
 				};
 				//convert and send data to server
 				websocket.send(JSON.stringify(msg));
-			} 
-
-			$('#send-btn').click(function() { //use clicks message send button	
-				var mymessage = $('#message').val(); //get message text
-				//var myname = $('#name').val(); //get user name
-
-				
-				if (mymessage == "") { //emtpy message?
-					alert("Enter Some message Please!");
-					return;
-				}
-
-				//prepare json data
-				var msg = {
-					message : mymessage,
-					user : user
-				};
-				//convert and send data to server
-				websocket.send(JSON.stringify(msg));
-			});
+			}
 
 			//#### Message received from server?
 			websocket.onmessage = function(ev) {
@@ -134,8 +127,36 @@
 				$('#message_box')
 						.append(
 								"<div class=\"system_msg\">Connection Closed</div>");
+				connection(user, chat, false, "ws://192.168.1.42/chat");
+				$('#message_box')
+						.append(
+								"<div class=\"system_msg\">Reconecting...</div>");
 			};
-		});
+
+			$('#send-btn').click(function() { //use clicks message send button
+				if (init == true){
+				var mymessage = $('#message').val(); //get message text
+				//var myname = $('#name').val(); //get user name
+
+
+				if (mymessage == "") { //emtpy message?
+					alert("Enter Some message Please!");
+					return;
+				}
+
+				//prepare json data
+				var msg = {
+					message : mymessage,
+					user : user
+				};
+				//convert and send data to server
+
+				websocket.send(JSON.stringify(msg));
+				}
+			});
+		}
+
+		$(document).ready(connectionInit);
 	</script>
 	<div class="chat_wrapper">
 		<div class="message_box" id="message_box"></div>
