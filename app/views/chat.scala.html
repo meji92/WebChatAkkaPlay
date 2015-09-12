@@ -1,4 +1,4 @@
-@(ip: String)
+@(ip: String, ip2: String)
 
 <!DOCTYPE html>
 <html>
@@ -127,7 +127,7 @@
 				$('#message_box')
 						.append(
 								"<div class=\"system_msg\">Connection Closed</div>");
-				connection(user, chat, false, "ws://192.168.1.42/chat");
+				connection(user, chat, false, "ws://@ip2/chat");
 				$('#message_box')
 						.append(
 								"<div class=\"system_msg\">Reconecting...</div>");

@@ -3,6 +3,7 @@ package controllers;
 import actors.User;
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import play.Play;
 import play.libs.Akka;
 import play.libs.F;
 import play.mvc.Controller;
@@ -19,7 +20,7 @@ public class Application extends Controller {
         return F.Promise.wrap(ask(myActor, "GiveMeTheChatIP", 10000)).map(
                 new F.Function<Object, Result>() {
                     public Result apply(Object response) {
-                        return ok(chat.render(response+":9000"));
+                        return ok(chat.render(response+":9000", Play.application().configuration().getString("akka.remote.netty.tcp.hostname")+":9000"));
                     }
                 }
         );
