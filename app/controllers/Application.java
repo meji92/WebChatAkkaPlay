@@ -16,8 +16,8 @@ import static akka.pattern.Patterns.ask;
 public class Application extends Controller {
 
     public F.Promise<Result> index() {
-        ActorRef myActor = Akka.system().actorFor("akka://application/user/ChatManager");
-        return F.Promise.wrap(ask(myActor, "GiveMeTheChatIP", 10000)).map(
+        ActorRef chatManager = Akka.system().actorFor("akka://application/user/ChatManager");
+        return F.Promise.wrap(ask(chatManager, "GiveMeTheChatIP", 10000)).map(
                 new F.Function<Object, Result>() {
                     public Result apply(Object response) {
                         return ok(chat.render(response+":9000", Play.application().configuration().getString("akka.remote.netty.tcp.hostname")+":9000"));
