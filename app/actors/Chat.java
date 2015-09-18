@@ -4,7 +4,6 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -25,19 +24,19 @@ public class Chat extends UntypedActor{
     ActorRef mediator;
 
 
-    public static Props props(String chatName) {
-        return Props.create(Chat.class, chatName);
+    public static Props props(String chatName, ActorRef mediator) {
+        return Props.create(Chat.class, chatName, mediator);
     }
 
     public Chat() {
         users = new HashMap<String,ActorRef>();
     }
 
-    public Chat(String chatName) {
+    public Chat(String chatName, ActorRef mediator) {
         this.chatName = chatName;
         this.chatManager = Akka.system().actorFor("akka://application/user/ChatManager");
         users = new HashMap<String,ActorRef>();
-        this.mediator = DistributedPubSub.get(getContext().system()).mediator();
+        this.mediator = mediator;
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
