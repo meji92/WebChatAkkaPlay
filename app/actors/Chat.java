@@ -4,11 +4,13 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import messages.*;
+import play.libs.Akka;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,19 +25,19 @@ public class Chat extends UntypedActor{
     ActorRef mediator;
 
 
-    public static Props props(ActorRef manager, String chatName, ActorRef mediator) {
-        return Props.create(Chat.class, manager, chatName, mediator);
+    public static Props props(String chatName) {
+        return Props.create(Chat.class, chatName);
     }
 
     public Chat() {
         users = new HashMap<String,ActorRef>();
     }
 
-    public Chat(ActorRef chatManager, String chatName, ActorRef mediator) {
+    public Chat(String chatName) {
         this.chatName = chatName;
-        this.chatManager = chatManager;
+        this.chatManager = Akka.system().actorFor("akka://application/user/ChatManager");
         users = new HashMap<String,ActorRef>();
-        this.mediator = mediator;
+        this.mediator = DistributedPubSub.get(getContext().system()).mediator();;
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
@@ -68,8 +70,8 @@ public class Chat extends UntypedActor{
                 if (message instanceof UnsubscribeChat){
                     users.remove(((UnsubscribeChat) message).getUser());
                     if (users.isEmpty()){ //If there aren't clients in this chat, I remove this chat
-                        UnsubscribeChatManager unsubscribeChatManager = new UnsubscribeChatManager(chatName);
-                        chatManager.tell(unsubscribeChatManager, getSelf());
+                        chatManager.tell(new UnsubscribeChatManager(chatName), getSelf());
+                        mediator.tell(new DistributedPubSubMediator.Unsubscribe(chatName, getSelf()), getSelf());
                         self().tell(PoisonPill.getInstance(), self());
                     }
                 }else{
@@ -84,8 +86,8 @@ public class Chat extends UntypedActor{
                             users.get(((DuplicatedUser) message).getUser()).tell(message, getSelf());
                             users.remove(((DuplicatedUser) message).getUser());
                             if (users.isEmpty()) { //If there aren't clients in this chat, I remove this chat
-                                UnsubscribeChatManager unsubscribeChatManager = new UnsubscribeChatManager(chatName);
-                                chatManager.tell(unsubscribeChatManager, getSelf());
+                                chatManager.tell(new UnsubscribeChatManager(chatName), getSelf());
+                                mediator.tell(new DistributedPubSubMediator.Unsubscribe(chatName, getSelf()), getSelf());
                                 self().tell(PoisonPill.getInstance(), self());
                             }
                         }
