@@ -5,5 +5,5 @@ import java.io.Serializable;
 /**
  * Created by meji on 12/08/15.
  */
-public class SendChatIP implements Serializable {
+public class GetIP implements Serializable {
 }

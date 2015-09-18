@@ -10,7 +10,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.routing.FromConfig;
 import messages.GetChat;
-import messages.SendChatIP;
+import messages.GetIP;
 import messages.UnsubscribeChatManager;
 import play.Play;
 import play.libs.Akka;
@@ -55,9 +55,9 @@ public class ChatManager extends UntypedActor{
             //Runtime runtime = Runtime.getRuntime();
             //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
             //System.out.println(" / " + runtime.maxMemory());
-            router.tell(new SendChatIP(), getSender());
+            router.tell(new GetIP(), getSender());
         } else {
-            if (message instanceof SendChatIP) {
+            if (message instanceof GetIP) {
                 /**Runtime runtime = Runtime.getRuntime();
                  System.out.println("##### Heap utilization statistics [MB] #####");
                  //Print used memory
