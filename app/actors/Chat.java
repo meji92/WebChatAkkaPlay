@@ -37,7 +37,7 @@ public class Chat extends UntypedActor{
         this.chatName = chatName;
         this.chatManager = Akka.system().actorFor("akka://application/user/ChatManager");
         users = new HashMap<String,ActorRef>();
-        this.mediator = DistributedPubSub.get(getContext().system()).mediator();;
+        this.mediator = DistributedPubSub.get(getContext().system()).mediator();
         //mediator = DistributedPubSubExtension.get(getContext().system()).mediator();
         mediator.tell(new DistributedPubSubMediator.Subscribe(chatName, getSelf()), getSelf());
         log = Logging.getLogger(getContext().system(), this);
