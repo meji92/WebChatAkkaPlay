@@ -12,13 +12,12 @@ import akka.routing.FromConfig;
 import messages.GetChat;
 import messages.GetIP;
 import messages.UnsubscribeChatManager;
-import play.Play;
 import play.libs.Akka;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.*;
 
 public class ChatManager extends UntypedActor{
 
@@ -71,7 +70,8 @@ public class ChatManager extends UntypedActor{
                 //heap HeapMetricsSelector - Used and max JVM heap memory. Weights based on remaining heap capacity; (max - used) / max
                 //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
                 //System.out.println(" / " + runtime.maxMemory());
-                getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
+                //getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
+                getSender().tell(getAmazonIP(), getSelf());
             } else {
                 if (message instanceof GetChat) {
                     if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
@@ -111,4 +111,46 @@ public class ChatManager extends UntypedActor{
             }
         }
     }
+
+
+
+    private String getPublicIpAddress() {
+        String res = null;
+        try {
+            String localhost = InetAddress.getLocalHost().getHostAddress();
+            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
+            while (e.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) e.nextElement();
+                if(ni.isLoopback())
+                    continue;
+                if(ni.isPointToPoint())
+                    continue;
+                Enumeration<InetAddress> addresses = ni.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress address = (InetAddress) addresses.nextElement();
+                    if(address instanceof Inet4Address) {
+                        String ip = address.getHostAddress();
+                        if(!ip.equals(localhost)) {
+                            //System.out.println((res = ip));
+                            res = ip;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    private String getAmazonIP(){
+        String dir = "ec2-";
+        String ip = getPublicIpAddress();
+        ip = ip.replace(".","-");
+        dir = dir + ip;
+        dir = dir + ".eu-west-1.compute.amazonaws.com";
+        return dir;
+    }
+
+
 }
