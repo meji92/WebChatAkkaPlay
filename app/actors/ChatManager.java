@@ -71,7 +71,7 @@ public class ChatManager extends UntypedActor{
                 //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
                 //System.out.println(" / " + runtime.maxMemory());
                 //getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
-                getSender().tell(getAmazonIP(), getSelf());
+                getSender().tell(getPublicIpAddress(), getSelf());
             } else {
                 if (message instanceof GetChat) {
                     if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
