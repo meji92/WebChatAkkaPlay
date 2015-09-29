@@ -157,7 +157,7 @@ public class ChatManager extends UntypedActor{
         Scanner s = null;
         try {
             //url = new URL("http://169.254.169.254/latest/meta-data/instance-id");
-            url = new URL("http://instance-data/latest/meta-data/instance-id");
+            url = new URL("http://instance-data/latest/meta-data/public-ipv4");
             conn = url.openConnection();
             s = new Scanner(conn.getInputStream());
         } catch (IOException e) {
