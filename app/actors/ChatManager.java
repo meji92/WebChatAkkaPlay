@@ -14,9 +14,8 @@ import messages.GetIP;
 import messages.UnsubscribeChatManager;
 import play.libs.Akka;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
+import java.io.IOException;
+import java.net.*;
 import java.util.*;
 
 public class ChatManager extends UntypedActor{
@@ -145,11 +144,30 @@ public class ChatManager extends UntypedActor{
 
     private String getAmazonIP(){
         String dir = "ec2-";
-        String ip = getPublicIpAddress();
+        String ip = getEC2InstancePublicIP();
         ip = ip.replace(".","-");
         dir = dir + ip;
         dir = dir + ".eu-west-1.compute.amazonaws.com";
         return dir;
+    }
+
+    public String getEC2InstancePublicIP(){
+        URL url = null;
+        URLConnection conn = null;
+        Scanner s = null;
+        try {
+            //url = new URL("http://169.254.169.254/latest/meta-data/instance-id");
+            url = new URL("http://instance-data/latest/meta-data/instance-id");
+            conn = url.openConnection();
+            s = new Scanner(conn.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String aux = null;
+        if (s.hasNext()) {
+            aux = s.next();
+        }
+        return aux;
     }
 
 
