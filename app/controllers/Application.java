@@ -29,8 +29,6 @@ public class Application extends Controller {
         return WebSocket.withActor(new F.Function<ActorRef, Props>() {
             public Props apply(ActorRef out) throws Throwable {
                 return User.props(out,chatManager);
-                //return Props.create(User.class, out, chatManager);
-                //return Props.create(EchoUser.class, out);
             }
         });
     }
