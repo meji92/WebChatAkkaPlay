@@ -23,7 +23,7 @@ import java.util.Map;
 public class ChatManager extends UntypedActor{
 
     private Map<String,ActorRef> chats;
-    private List <String> chatManagers;
+    private List <String> ips;
     Cluster cluster = Cluster.get(getContext().system());
     LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     ActorRef router = getContext().actorOf(FromConfig.getInstance().props(), "router");
@@ -31,7 +31,8 @@ public class ChatManager extends UntypedActor{
 
 
     public ChatManager() {
-        chatManagers = new ArrayList<String>();
+        ips = new ArrayList<String>();
+        ips.add("\""+Play.application().configuration().getString("akka.remote.netty.tcp.hostname").toString()+"\"");
         chats = new HashMap<String,ActorRef>();
         mediator = DistributedPubSub.get(getContext().system()).mediator();
     }
@@ -71,7 +72,9 @@ public class ChatManager extends UntypedActor{
                 //heap HeapMetricsSelector - Used and max JVM heap memory. Weights based on remaining heap capacity; (max - used) / max
                 //System.out.print("Heap: " + (runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())));
                 //System.out.println(" / " + runtime.maxMemory());
-                getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
+
+                //getSender().tell(Play.application().configuration().getString("akka.remote.netty.tcp.hostname"), getSelf());
+                getSender().tell(ips.toString(), getSelf());
             } else {
                 if (message instanceof GetChat) {
                     if (!chats.containsKey(((GetChat) message).getChatname())) { //If i don't  have this chat, I create it
@@ -89,6 +92,10 @@ public class ChatManager extends UntypedActor{
                         if (message instanceof MemberUp) {
                             MemberUp mUp = (MemberUp) message;
                             log.info("Member is Up: {}", mUp.member());
+                            if (!ips.contains("\""+mUp.member().address().host().get().toString()+"\"")) {
+                                ips.add("\"" + mUp.member().address().host().get().toString() + "\"");
+                            }
+                            System.out.println(ips.toString());
 
                         } else if (message instanceof UnreachableMember) {
                             UnreachableMember mUnreachable = (UnreachableMember) message;
@@ -97,6 +104,7 @@ public class ChatManager extends UntypedActor{
                         } else if (message instanceof MemberRemoved) {
                             MemberRemoved mRemoved = (MemberRemoved) message;
                             log.info("Member is Removed: {}", mRemoved.member());
+                            ips.remove("\""+mRemoved.member().address().host().get().toString()+"\"");
 
                         } else if (message instanceof MemberEvent) {
                             // ignore

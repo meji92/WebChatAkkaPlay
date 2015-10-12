@@ -8,9 +8,7 @@ version := "1.0-SNAPSHOT"
 val akkaVersion = "2.4-M2"
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava)
-
 scalaVersion := "2.11.6"
-
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,

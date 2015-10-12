@@ -1,4 +1,4 @@
-@(ip: String, ip2: String)
+@(ip: String)
 
 <!DOCTYPE html>
 <html>
@@ -49,42 +49,34 @@
 		src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
 	<script language="javascript" type="text/javascript">
-		var userG = "";
+
+		//var ips = ["192.168.1.45","192.168.1.46"];
+		var ips = @Html(ip);
 		function connectionInit(){
-			connection("", "", true, "ws://@ip/chat")
+			var chat = prompt("Chat name", "chat");
+			if(chat == null || chat === ''){
+				chat = "chat";
+			}
+			var user = prompt("User name", "user");
+			if(user == null || user === ''){
+				user = "user";
+			}
+			//connection(user, chat, "ws://@ip/chat")
+			var dir= "ws://"+String(ips[0])+":9000/chat";
+			connection(user, chat, dir, 1);
 		}
 
-		function connection(user2, chat2, init, wsUri){
-
-			if (init == true){
-				var chat = prompt("Chat name", "chat");
-				if(chat == null || chat === ''){
-					chat = "chat";
-				}
-
-				var user = prompt("User name", "user");
-				if(user == null || user === ''){
-					user = "user";
-					userG = "user"
-				}
-			}else{
-				user = user2;
-				userG = user2;
-				chat = chat2;
-			}
+		function connection(user2, chat2, wsUri, index){
+			user = user2;
+			chat = chat2;
 
 			//create a new WebSocket object.
-			//var wsUri = "ws://localhost:9000/chat";
-			//var wsUri = "ws://192.168.1.204:9000/chat";
-			//var wsUri = "ws://@ip/chat";
 			websocket = new WebSocket(wsUri);
 
 		 	websocket.onopen = function(ev) { // connection is open
-				if (init == true){
-					$('#message_box')
-							.append(
-									"<div class=\"system_msg\">Connected!</div>"); //notify user
-				}
+				$('#message_box')
+						.append(
+								"<div class=\"system_msg\">Connected!</div>"); //notify user
 				//prepare json data
 				var msg = {
 					chat : chat,
@@ -96,7 +88,6 @@
 
 			//#### Message received from server?
 			websocket.onmessage = function(ev) {
-				//alert(ev.data)
 				var msg = JSON.parse(ev.data); //PHP sends Json data
 				var type = msg.type; //message type
 				var umsg = msg.message; //message text
@@ -104,11 +95,9 @@
 				var ucolor = msg.color; //color
 
 				if (type == 'system') {
-					if (init == true){
-						$('#message_box').append(
-								"<div class=\"system_msg\">" + umsg
-										+ "</div>");
-					}
+					$('#message_box').append(
+							"<div class=\"system_msg\">" + umsg
+									+ "</div>");
 				} else {
 					$('#message_box')
 					.append(
@@ -119,7 +108,7 @@
 									+ "</span></div>");
 				}
 
-				$('#message').val(''); //reset text
+				//$('#message').val(''); //reset text
 			};
 
 			websocket.onerror = function(ev) {
@@ -128,26 +117,29 @@
 								+ ev.data + "</div>");
 			};
 			websocket.onclose = function(ev) {
-				if (init == true){
-					connection(user, chat, false, "ws://@ip2/chat");
-					//$('#message_box')
-					//		.append(
-					//				"<div class=\"system_msg\">Reconecting...</div>");
-				}else{
-					$('#message_box')
-						.append(
-								"<div class=\"system_msg\">Connection Closed</div>");
+				websocket.close();
+				if (ips.length == index){
+					index = 0;
 				}
+				var dir= "ws://"+ips[index]+":9000/chat";
+				connection(user, chat, dir, index+1);
+				$('#message_box')
+					.append(
+							"<div class=\"system_msg\">Reconecting...</div>");
+
+				//$('#message_box')
+				//	.append(
+				//			"<div class=\"system_msg\">Connection Closed</div>");
+
 			};
 
 			$('#send-btn').click(function() { //use clicks message send button
-				if (init == true){
 				var mymessage = $('#message').val(); //get message text
 				//var myname = $('#name').val(); //get user name
 
 
 				if (mymessage == "") { //emtpy message?
-					alert("Enter Some message Please!");
+					//alert("Enter Some message Please!");
 					return;
 				}
 
@@ -159,7 +151,7 @@
 				//convert and send data to server
 
 				websocket.send(JSON.stringify(msg));
-				}
+				$('#message').val(''); //reset text
 			});
 		}
 
